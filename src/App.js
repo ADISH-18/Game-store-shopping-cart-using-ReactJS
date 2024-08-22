@@ -1,23 +1,66 @@
-import logo from './logo.svg';
+import React, { useState } from 'react';
 import './App.css';
+import ProductCard from './components/ProductCard';
+import { products } from './data/productsData';
+import { addToCart, getCart, removeFromCart } from './data/cardData';
+import './components/cart.css';
 
 function App() {
+  const [cart, setCart] = useState(getCart());
+  const [isCartVisible, setIsCartVisible] = useState(false);
+
+  const handleAddToCart = (product) => {
+    addToCart(product);
+    setCart(getCart());
+  };
+
+  const handleRemoveFromCart = (productId) => {
+    removeFromCart(productId);
+    setCart(getCart());
+  };
+
+  const toggleCartVisibility = () => {
+    setIsCartVisible(!isCartVisible);
+  };
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <h1>Games Store</h1>
+        <button onClick={toggleCartVisibility}>
+          {isCartVisible ? 'Hide Cart' : `View Cart (${cart.length})`}
+        </button>
       </header>
+      
+      <div className="products-grid">
+        {products.map(product => (
+          <ProductCard 
+            key={product.id} 
+            product={product} 
+            onAddToCart={handleAddToCart} 
+          />
+        ))}
+      </div>
+
+      {isCartVisible && (
+        <div className="cart-container">
+          <h2>Your Cart</h2>
+          {cart.length === 0 ? (
+            <p>Your cart is empty.</p>
+          ) : (
+            <ul>
+              {cart.map(product => (
+                <li key={product.id}>
+                  <img src={product.image} alt={product.name} />
+                  <span>{product.name}</span>
+                  <span>${product.price.toFixed(2)}</span>
+                  <button onClick={() => handleRemoveFromCart(product.id)}>Remove</button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
     </div>
   );
 }
